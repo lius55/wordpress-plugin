@@ -13,3 +13,7 @@
 - メール送信
 - rest-api
 - テーブル自動追加
+
+<p align="center">
+	<img src="https://github.com/lius55/wordpress-plugin/blob/master/img/diag.png" width="700px" />
+</p>
