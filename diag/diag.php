@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: 診断Generator
+Plugin Name: 誕生日診断orig
 Plugin URI: https://github.com/tony56
-Description: 診断Generatorプラグイン
+Description: 誕生日診断origプラグイン
 Version: 1.0
 Author: tony56
 */
@@ -52,17 +52,12 @@ class DiagPlugin {
         $rows = $wpdb->get_results($sql);
         if (!$rows) {
             $sql = $wpdb->prepare("CREATE TABLE `wp_diag_rule` (" .
-                "`id` int(11) NOT NULL," .
+                "`id` int(11) NOT NULL AUTO_INCREMENT," .
                 "`from` int(11), `to` int(11)," .
                 "`result` varchar(1000), `img` varchar(100), " . 
-                "`insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" .
+                "`insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " .
+                "PRIMARY KEY (`id`)" .
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8", '');
-            $wpdb->get_results($sql);
-
-            $sql = $wpdb->prepare("ALTER TABLE `wp_area` ADD PRIMARY KEY (`id`)");
-            $wpdb->get_results($sql);
-
-            $sql = $wpdb->prepare("ALTER TABLE `wp_area` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT");
             $wpdb->get_results($sql);
         }
 
@@ -71,17 +66,13 @@ class DiagPlugin {
         $rows = $wpdb->get_results($sql);
         if (!$rows) {
             $sql = $wpdb->prepare("CREATE TABLE `wp_diag_history` (" .
-                    "`id` int(11) NOT NULL," .
+                    "`id` int(11) NOT NULL AUTO_INCREMENT," .
                     "`email` varchar(256) NOT NULL," .
                     "`birthday` varchar(8) NOT NULL," .
-                    "`insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP" .
+                    "`ip` varchar(128) NULL," .
+                    "`insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," .
+                    "PRIMARY KEY(`id`)" .
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8", '');
-            $wpdb->get_results($sql);
-
-            $sql = $wpdb->prepare("ALTER TABLE `wp_diag_history` ADD PRIMARY KEY (`id`)");
-            $wpdb->get_results($sql);
-
-            $sql = $wpdb->prepare("ALTER TABLE `wp_diag_history` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT");
             $wpdb->get_results($sql);
         }
     }
@@ -93,7 +84,7 @@ class DiagPlugin {
         $diagSetting = new DiagSetting();
         $diagHistory = new DiagHistory();
 
-        add_menu_page('診断Generator', '診断Generator',  'level_8', $diag_slug, array($diagSetting,'showPage'), '');
+        add_menu_page('誕生日診断orig', '誕生日診断orig',  'level_8', $diag_slug, array($diagSetting,'showPage'), '');
         add_submenu_page($diag_slug, '一般', '一般', 'level_8', $diag_slug, array($diagSetting,'showPage'));
         add_submenu_page($diag_slug, '履歴管理', '履歴管理', 'level_8', $diag_slug.'_history', array($diagHistory,'showPage'));
         add_submenu_page($diag_slug, '回答設定', '回答設定', 'level_8', $diag_slug.'_rule', array($diagRule, 'showPage'));

@@ -15,7 +15,7 @@ class DiagHistory {
 
 		?>
 			<h1 class="wp-heading-inline">履歴管理</h1>
-			<script src="http://code.jquery.com/jquery-3.3.1.min.js" ></script>
+			<script src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
 
 			<div class="info"><?php echo $msg;?></div>
 			<form method="post" action="" id="hisForm">

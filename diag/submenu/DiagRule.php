@@ -20,6 +20,13 @@ class DiagRule {
 				$result = isset($_POST["result_${num}"]) ? $_POST["result_${num}"] : '';
 				$img = isset($_POST["img_${num}"]) ? $_POST["img_${num}"] : '';
 
+				if (isset($_POST['deleteIds'])) {
+					foreach ($_POST['deleteIds'] as $deleteId) {
+						$sql = $wpdb->prepare("delete from wp_diag_rule where `id`=${deleteId}", '');
+						$wpdb->get_results($sql);
+					}
+				}
+				
 				if (isset($_POST["condition_id_${num}"]) && strlen($_POST["condition_id_${num}"]) > 0) {
 					$id = $_POST["condition_id_${num}"];
 					$sql = $wpdb->prepare("UPDATE wp_diag_rule set `from`=${from},`to`=${to}," .
@@ -39,7 +46,7 @@ class DiagRule {
 		
 	?>
 	<h1 class="wp-heading-inline">回答設定</h1>
-	<script src="http://code.jquery.com/jquery-3.3.1.min.js" ></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
 	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
 
 	<div style="margin: 20px 0px;">
@@ -60,7 +67,7 @@ class DiagRule {
 					<input type="hidden" name="condition_id_${num}"/>
 					<input type="hidden" name="num[]" value="${num}"/>
 					<div class="condition-title">
-						<i class="far fa-times-circle close" target="condition_${num}"></i>
+						<i class="far fa-times-circle close" target="condition_${num}" num="${num}"></i>
 					</div>
 					<div class="condition_input">
 						<dl>
@@ -120,6 +127,11 @@ class DiagRule {
 
 			$('#condition-list').on('click', '.close', function() {
 				console.log("target=" + $(this).attr("target"));
+				let num = $(this).attr("num");
+				if($(`[name=condition_id_${num}]`).val().length > 0) {
+					let id = $("[name=condition_id_"+num+"]").val();
+					$(`<input type="hidden" name="deleteIds[]" value="${id}"/>`).appendTo("#condition-list");
+				}
 				$("#" + $(this).attr("target")).remove();
 			});
 		});

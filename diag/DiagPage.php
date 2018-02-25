@@ -5,14 +5,14 @@ class DiagPage {
 	public static function showPage() {
 		?>
 
-		<script src="http://code.jquery.com/jquery-3.3.1.min.js" ></script>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
 		<?php
 			echo file_get_contents('template/diag-page.tpl.html', true);
 		?>
 		<script type="text/javascript">
 			$(function() {
-				let yearStart = 1900;
-				let yearEnd = 2018;
+				let yearStart = <?php echo null != get_option('diag_year_start') ? get_option('diag_year_start') : 1900; ?>;
+				let yearEnd = <?php echo null != get_option('diag_year_end') ? get_option('diag_year_end') : 2018; ?>;
 
 				for (y = yearStart; y < yearEnd; y++) {
 					$("#year").append(`<option value="${y}">${y}</option>`);
@@ -91,6 +91,12 @@ class DiagPage {
                             email: $("#email").val()
                         },
                         success: function(response) {
+                        		if (response.result == 'over times') {
+                        			alert('<?php echo get_option('diag_over_times_msg') ? 
+                        				get_option('diag_over_times_msg') : '本日はもう診断できません。'?>');
+                        			return;
+                        		}
+
                                 <?php 
                                         if (strlen(get_option('diag_complete_url')) > 0) {
                                                 ?>
@@ -109,7 +115,7 @@ class DiagPage {
                     });
 				});
 
-				changeYear(1920);
+                changeYear($("#year").val());
 			});
 		</script>
 
@@ -125,8 +131,24 @@ class DiagPage {
 
 		global $wpdb;
 
+		header('Content-type: text/html; charset=utf-8');
+		header('Content-Type: application/json');
+		$response = new stdClass();		
+
+		// 1日3回まで
+		$ip = $this->getIp();
+		$sql = $wpdb->prepare("select count(*) as times from wp_diag_history " . 
+						"where date(insert_date) = curdate() and ip='${ip}'", '');
+		$result = $wpdb->get_results($sql);
+		if ($result && $result[0]->times >= 3) {
+			$response->result = 'over times';
+			echo json_encode($response, JSON_UNESCAPED_UNICODE);
+			die;	
+		}
+
 		$sql = $wpdb->prepare(
-					"select r.img,r.result,r.id from wp_diag_rule r where `from`<=${ruleNum} and `to`>= ${ruleNum}", '');
+					"select r.img,r.result,r.id from wp_diag_rule r where `from`<=${ruleNum} and `to`>= ${ruleNum} " .
+					"order by r.id asc", '');
 		$result = $wpdb->get_results($sql);
 
 		$mailTitle = get_option('diag_mail_title');
@@ -138,13 +160,13 @@ class DiagPage {
 			wp_mail($email, $mailTitle, $mailContent, $headers);
 
 			// 履歴挿入
-			$sql = $wpdb->prepare("insert into wp_diag_history(email, birthday) values('$email','$birthday')", '');
+			$sql = 
+				$wpdb->prepare(
+						"insert into wp_diag_history(email, birthday, ip) " . 
+						" values('$email','$birthday', '$ip')", '');
 			$wpdb->get_results($sql);
 		}
 
-		header('Content-type: text/html; charset=utf-8');
-		header('Content-Type: application/json');
-		$response = new stdClass();
 		$response->result = 'success';
 		echo json_encode($response, JSON_UNESCAPED_UNICODE);
 		die;
@@ -158,6 +180,18 @@ class DiagPage {
 							'${img}' => $img
 						));
 		return $template;
+	}
+
+	public static function getIp() {
+		$ip = '';
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+			$ip = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+			$ip = $_SERVER['REMOTE_ADDR'];
+		}
+		return $ip;
 	}
 }
 
