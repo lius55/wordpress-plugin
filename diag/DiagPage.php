@@ -4,11 +4,7 @@ class DiagPage {
 	
 	public static function showPage() {
 		?>
-
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
-		<?php
-			echo file_get_contents('template/diag-page.tpl.html', true);
-		?>
 		<script type="text/javascript">
 			$(function() {
 				let yearStart = <?php echo null != get_option('diag_year_start') ? get_option('diag_year_start') : 1900; ?>;
@@ -120,6 +116,9 @@ class DiagPage {
 		</script>
 
 		<?php
+		ob_start();
+		echo file_get_contents('template/diag-page.tpl.html', true);
+		return ob_get_clean();
 	}
 
 	function sendMail() {
@@ -135,7 +134,7 @@ class DiagPage {
 		header('Content-Type: application/json');
 		$response = new stdClass();		
 
-		// 1日3回まで
+		// 診断回数1日3回まで
 		$ip = $this->getIp();
 		$sql = $wpdb->prepare("select count(*) as times from wp_diag_history " . 
 						"where date(insert_date) = curdate() and ip='${ip}'", '');
@@ -147,7 +146,7 @@ class DiagPage {
 		}
 
 		$sql = $wpdb->prepare(
-					"select r.img,r.result,r.id from wp_diag_rule r where `from`<=${ruleNum} and `to`>= ${ruleNum} " .
+					"select r.img,r.result,r.id,r.title from wp_diag_rule r where `from`<=${ruleNum} and `to`>= ${ruleNum} " .
 					"order by r.id asc", '');
 		$result = $wpdb->get_results($sql);
 
@@ -155,7 +154,7 @@ class DiagPage {
 		if ($result) {
 			$row = $result[0];
 			// メール送信
-			$mailContent = $this->getMailContent($row->result, $row->img);
+			$mailContent = $this->getMailContent($row->id, $row->title, $row->result, $row->img);
 			$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 			wp_mail($email, $mailTitle, $mailContent, $headers);
 
@@ -172,10 +171,12 @@ class DiagPage {
 		die;
 	}
 
-	public static function getMailContent($result, $img) {
+	public static function getMailContent($id, $title, $result, $img) {
 		$template = file_get_contents('template/result-mail.tpl.html', true);
 		$template = strtr($template,
 						array(
+							'${id}' => $id,
+							'${title}' => $title,
 							'${result}' => $result,
 							'${img}' => $img
 						));

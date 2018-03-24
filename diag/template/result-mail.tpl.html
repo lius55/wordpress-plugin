@@ -1,15 +1,49 @@
-<header>
-	This is header
-</header>
+<meta charset="utf-8">
+<div style="max-width: 600px; margin-left: auto; margin-right: auto; padding: 0px 7px; padding-bottom: 10px; border: #deb887 7px solid; border-bottom: none;">
+	<header style="text-align: center;">
+		<h1 style="padding-top: 10px; color: #ffc800;">
+			診断結果
+		</h1>
+		<div>
+			<span>太陽占い</span>
+			<span>TAIYOURANAI</span>
+		</div>
+	</header>
 
-<div class="result-text">
-	${result}
+	<div style="background-color: white; padding: 10px 15px; margin-top: 10px;">
+
+		<div class="result-img" style="margin: 0 auto; padding-top: 10px;">
+			<img src="${img}" style="width: 100%;" />
+		</div>
+
+		<h2 style="text-align: center;">${title}</h2>
+		<div class="result-text"  style="line-height: 1.5em;">
+			<p><pre>${result}</pre></p>
+		</div>
+
+		<footer style="font-weight: bold; text-align: center;">
+			<div style="padding: 10px 0px;">
+				<a href="https://www.facebook.com/sharer/sharer.php?u=https://spiritually.jp/taiyo?diag_id=${id}" target="_blank">
+					<img src="https://spiritually.jp/wp-content/uploads/facebookshareiconw660.jpg" style="width: 100%;" />
+				</a>
+			</div>
+			<div style="border-bottom: 1px solid grey; padding-bottom: 20px; margin-bottom: 20px;">
+				<div style="display: inline-block; width: 47%;">
+					<a href="https://line.me/R/msg/text/?https://spiritually.jp/taiyo?diag_id=${id}" target="_blank">
+						<img src="https://spiritually.jp/wp-content/uploads/lineshare2w660.jpg" style="width: 100%;" />
+					</a>
+				</div>
+				<div style="display: inline-block; width: 47%; padding-left: 4%;">
+					<a href="https://twitter.com/share?url=https://spiritually.jp/taiyo?diag_id=${id}" target="_blank">
+						<img src="https://spiritually.jp/wp-content/uploads/twitter3w660.jpg" style="width: 100%;" />
+					</a>
+				</div>
+			</div>
+			<div style="padding-bottom: 20px;">
+				<a href="https://spiritually.jp/taiyo">https://spiritually.jp/taiyo</a>
+			</div>
+		</footer>
+	</div>
 </div>
 
-<div class="result-img" style="margin: 0 auto;">
-	<img src="${img}">
-</div>
-
-<footer style="font-weight: bold;">
-	This is footer
-</footer>
+<style type="text/css">

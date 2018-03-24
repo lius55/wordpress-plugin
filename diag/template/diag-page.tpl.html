@@ -1,10 +1,15 @@
-<div>
-	<dl>
-		<dt>
-			<label>生年月日</label>
-		</dt>
-		<dd>
-			<select id="year"></select>年
+<div class="uranai">
+<!--
+	<div class="title">
+		<div class="title-text"><h1>太陽占い診断</h1></div>
+		<div class="title-disp"><h3>不思議とあなたの本質が視える・無料配信<br>  <br> </h3></div>
+	</div>　
+-->
+
+	<dl class="calendar">
+
+		<dt class="cal-col-3">
+			<div>月</div>
 			<select id="month">
 				<option value="1">1</option>
 				<option value="2">2</option>
@@ -18,17 +23,146 @@
 				<option value="10">10</option>
 				<option value="11">11</option>
 				<option value="12">12</option>
-			</select>月
-			<select id="day"></select>日					
+			</select>
+		</dt>
+		<dt class="cal-col-3">
+			<div>日</div>
+			<select id="day"></select>
+		</dt>
+	</dl>
+
+	<dl style="padding-top: 15px; text-align: center;">
+		<dt><div class="email">診断結果お受け取りメール</div></dt>
+		<dd class="emailinput">
+			<input type="text" id="email" class="inputtext" />
 		</dd>
 	</dl>
-	<dl>
-		<dt><label>メールアドレス</label></dt>
-		<dd>
-			<input type="text" id="email" />
-		</dd>
-	</dl>
-	<div>
-		<button id="diag">診断</button>
+	<div style="text-align: center; padding: 20px 0px;">
+		<a href="#" id="diag"><br>診　断<br></a>
 	</div>
 </div>
+
+<style type="text/css">
+	
+	.emailinput{
+		padding: 0;
+	}
+	input.inputtext{
+		font-size: 1.2em;
+		text-align: center;
+	}
+	
+	select#year {
+		text-indent: 25%;
+		font-size: 1.2em;
+		font-weight: 700;
+	}
+		select#month {
+		text-indent: 39%;
+		font-size: 1.2em;
+		font-weight: 700;
+	}
+		select#day {
+		text-indent: 39%;
+		font-size: 1.2em;
+		font-weight: 700;
+	}
+	
+	.title {
+		background-image: url("https://spiritually.jp/wp-content/uploads/4c568221b48d79fb8d4388182ac25e3b.png");
+		background-size: 100% 100%;
+		text-align: center;
+		margin: auto;
+		width: 100%;
+		height: 100%;
+	}
+		.title-disp {
+		font-weight: 600;
+	}
+	.title-text {
+		font-size: 35px;
+		font-weight: 700;
+		padding-top: 15px;
+		color: grey;
+	}
+	.calendar{ 
+		padding-top: 15px;
+		text-align: center;
+	}
+	.cal-col-3 {
+		display: inline-block;
+		width: 30%;
+		margin: 0px 5px;
+		border-top: 1px solid #fbba36;
+		padding-top: 5px;
+		font-weight: 600;
+		font-size: 1.1em;
+		text-align: center;
+	}
+	.email {
+		border-top: 1px solid #fbba36;
+		margin: 0px 5px;
+		text-align: center;
+		font-size: 1.1em;
+		font-weight: 600;
+		padding-top: 5px;
+	}
+	.uranai select {
+		padding: 5px;
+		background-color: white;
+		width: 100%;
+		-webkit-appearance: none;
+		border-radius: 5px;
+		border: 1px solid rgb(166, 166, 166);		
+	}
+	
+	.uranai input {
+		padding: 8px;
+		background-color: white;
+		width: 90%;
+		border-radius: 5px;
+		border: 1px solid rgb(166, 166, 166);
+	}
+	.uranai {
+	  /*border: 10px solid rgba(0, 0, 200, .8);*/
+	  /*border-image: repeating-linear-gradient( -45deg, rgba(60, 60, 200, .8), rgba(60, 60, 200, .8) 5px, transparent 6px, transparent 10px, rgba(255, 0, 0, .8) 11px, rgba(255, 0, 0, .8) 15px, transparent 16px, transparent 20px) 12/10px;*/
+	  padding: 10px;	
+	  max-width: 450px;
+	  margin: auto;
+	}
+	#diag{
+	    display: inline-block;
+	    text-decoration: none;
+	    font-size: 2em;
+	    color: #494848;
+	    width: 120px;
+	    height: 3em;
+	    line-height: 1em;
+	    border-radius: 5px;
+	    text-align: center;
+	    vertical-align: middle;
+	    overflow: hidden;
+	    font-weight: bold;
+	    background-image: -webkit-linear-gradient(#fed6e3 0%, #ffaaaa 100%);
+	    background-image: linear-gradient(#fed6e3 0%, #ffaaaa 100%);
+	    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
+	    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
+	    width: 95%;
+	}
+
+	#diag:active{/*押したとき*/
+	    -ms-transform: translateY(2px);
+	    -webkit-transform: translateY(2px);
+	    transform: translateY(2px);/*沈むように*/
+	    box-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
+	    background-image: -webkit-linear-gradient(#fed6e3 0%, #ffbcbc 100%);
+	    background-image: linear-gradient(#fed6e3 0%, #ffbcbc 100%);/*グラデーションを明るく*/
+	}
+
+	@media (min-width: 750px) {
+		.email {
+			margin: 0 auto !important;
+			width: 93% !important;
+		}
+	}
+</style>

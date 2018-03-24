@@ -54,7 +54,8 @@ class DiagPlugin {
             $sql = $wpdb->prepare("CREATE TABLE `wp_diag_rule` (" .
                 "`id` int(11) NOT NULL AUTO_INCREMENT," .
                 "`from` int(11), `to` int(11)," .
-                "`result` varchar(1000), `img` varchar(100), " . 
+                "`result` varchar(1000), `img` varchar(100), " .
+                "thumbnail varchar(512), `title` varchar(256), " . 
                 "`insert_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " .
                 "PRIMARY KEY (`id`)" .
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8", '');
@@ -89,7 +90,24 @@ class DiagPlugin {
         add_submenu_page($diag_slug, '履歴管理', '履歴管理', 'level_8', $diag_slug.'_history', array($diagHistory,'showPage'));
         add_submenu_page($diag_slug, '回答設定', '回答設定', 'level_8', $diag_slug.'_rule', array($diagRule, 'showPage'));
     }
+
+    public static function clear_plugin() {
+        
+        global $wpdb;
+        $wpdb->query('drop table wp_diag_history');
+        $wpdb->query('drop table wp_diag_rule');
+
+        $options = array("diag_email", "diag_complete_url", "diag_mail_title", "diag_over_times_msg",
+                        "diag_year_end", "diag_year_start");
+
+        foreach($options as $option) {
+            delete_option($option);
+        }
+    }
 }
+
 plugins_url( 'config.php', __FILE__ );
 $diagPlugin = new DiagPlugin;
+
+register_uninstall_hook(__FILE__, array('DiagPlugin', 'clear_plugin'));
 

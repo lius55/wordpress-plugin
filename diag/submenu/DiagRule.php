@@ -19,6 +19,7 @@ class DiagRule {
 				$to = isset($_POST["to_${num}"]) ? ltrim($_POST["to_${num}"], '0') : '';
 				$result = isset($_POST["result_${num}"]) ? $_POST["result_${num}"] : '';
 				$img = isset($_POST["img_${num}"]) ? $_POST["img_${num}"] : '';
+				$title = isset($_POST["title_${num}"]) ? $_POST["title_${num}"] : '';
 
 				if (isset($_POST['deleteIds'])) {
 					foreach ($_POST['deleteIds'] as $deleteId) {
@@ -30,20 +31,19 @@ class DiagRule {
 				if (isset($_POST["condition_id_${num}"]) && strlen($_POST["condition_id_${num}"]) > 0) {
 					$id = $_POST["condition_id_${num}"];
 					$sql = $wpdb->prepare("UPDATE wp_diag_rule set `from`=${from},`to`=${to}," .
-								"result='${result}',img='${img}' where `id`=${id}", '');
+								"result='${result}',img='${img}',title='${title}' where `id`=${id}", '');
 					$wpdb->get_results($sql);
 				} else if (strlen($from) > 0 && strlen($to) > 0) {
-					$sql = $wpdb->prepare("INSERT INTO wp_diag_rule(`from`,`to`, result, img)" . 
-							 " VALUES(${from}, ${to}, '${result}', '${img}')", '');
+					$sql = $wpdb->prepare("INSERT INTO wp_diag_rule(`from`,`to`, result, img, title)" . 
+							 " VALUES(${from}, ${to}, '${result}', '${img}', '${title}')", '');
 					$wpdb->get_results($sql);
 				}
 			}
 		} 
 
 		// DBから検索
-		$sql = $wpdb->prepare("SELECT r.id,r.from,r.to,r.result,r.img FROM wp_diag_rule r ORDER BY `from` asc", '');
+		$sql = $wpdb->prepare("SELECT r.id,r.from,r.to,r.result,r.img,r.title FROM wp_diag_rule r ORDER BY `from` asc", '');
 		$result = $wpdb->get_results($sql);
-		
 	?>
 	<h1 class="wp-heading-inline">回答設定</h1>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
@@ -80,8 +80,12 @@ class DiagRule {
 							<dd><input type="text" name="img_${num}" class="expand"></dd>
 						</dl>
 						<dl>
+							<dt>診断結果タイトル</dt>
+							<dd><input type="text" name="title_${num}" class="expand"></dd>
+						</dl>
+						<dl>
 							<dt>診断結果</dt>
-							<dd><textarea rows="2" name="result_${num}" class="expand"></textarea></dd>
+							<dd><textarea rows="6" name="result_${num}" class="expand"></textarea></dd>
 						</dl>
 					</div>
 				</div>		
@@ -89,11 +93,12 @@ class DiagRule {
 		}
 
 		// 画面初期化処理
-		let showPattern = function(id, num, from, to, img, result) {
+		let showPattern = function(id, num, from, to, img, result, title) {
 			$("#condition-list").append(getConditionTemplate(num));
 			$("[name=from_"+num+"]").val(("0" + from).slice(-4));
 			$("[name=to_"+num+"]").val(("0" + to).slice(-4));
 			$("[name=img_"+num+"]").val(img);
+			$("[name=title_"+num+"]").val(title);
 			$("[name=result_"+num+"]").val(result);
 			$("[name=condition_id_"+num+"]").val(id);
 		}
@@ -110,7 +115,8 @@ class DiagRule {
 					<?php echo $condition->from; ?>,
 					<?php echo $condition->to; ?>,
 					'<?php echo $condition->img; ?>',
-					'<?php echo $condition->result; ?>'
+					`<?php echo $condition->result; ?>`,
+					'<?php echo $condition->title; ?>'
 				);
 				</script>
 				<?php
@@ -161,7 +167,6 @@ class DiagRule {
 		.condition { padding: 5px; border-bottom: 1px solid #80808094; padding-top: 0px; }
 		.condition:nth-child(2n) { }
 		.condition:last-child { border-bottom: none; }
-
 	</style>
 
 	<?php
