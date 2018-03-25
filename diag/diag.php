@@ -23,6 +23,11 @@ function sendMail() {
     $diagPage->sendMail();
 }
 
+function getResult() {
+    $diagPage = new DiagPage();
+    $diagPage->getResult();
+}
+
 add_action('rest_api_init', function() {
 
     register_rest_route('diag/v1', 'history', array(
@@ -33,6 +38,11 @@ add_action('rest_api_init', function() {
     register_rest_route('diag/v1', 'sendMail', array(
         'methods' => 'POST',
         'callback' => 'sendMail'
+    ));
+
+    register_rest_route('diag/v1', 'result', array(
+        'methods' => 'POST',
+        'callback' => 'getResult'
     ));
 });
 

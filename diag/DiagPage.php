@@ -7,6 +7,8 @@ class DiagPage {
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
 		<script type="text/javascript">
 			$(function() {
+				$(".show-result").hide();
+
 				let yearStart = <?php echo null != get_option('diag_year_start') ? get_option('diag_year_start') : 1900; ?>;
 				let yearEnd = <?php echo null != get_option('diag_year_end') ? get_option('diag_year_end') : 2018; ?>;
 
@@ -54,15 +56,7 @@ class DiagPage {
 				    }
 				}
 
-				$("#year").on('change', function() {
-					changeYear($(this).val());
-				});
-
-				$("#month").on('change', function() {
-					changeMonth($("#year").val(), $(this).val());
-				});
-
-				$("#diag").on('click', function() {
+				$("#sendMail").on('click', function() {
 
 					// validationチェック
 					if ($("#email").val().length < 1) {
@@ -75,11 +69,11 @@ class DiagPage {
 					}
 
 					let birthday = 
-						$("#year").val() + 
+						'1900' + 
 						("0" + $("#month").val()).slice(-2) +
 						("0" + $("#day").val()).slice(-2);
 
-                    $.ajax({
+					$.ajax({
                         url: "<?php echo get_site_url() . '/wp-json/diag/v1/sendMail/' ?>",
                         type: 'POST',
                         data: { 
@@ -87,28 +81,66 @@ class DiagPage {
                             email: $("#email").val()
                         },
                         success: function(response) {
+		                    <?php 
+		                            if (strlen(get_option('diag_complete_url')) > 0) {
+		                                    ?>
+		                                    location.href = '<?php echo get_option('diag_complete_url'); ?>';
+		                                    <?php
+		                            } else {
+		                                    ?>
+		                                    alert('診断完了しました。メールをご確認ください。');
+		                                    <?php
+		                            }
+		                    ?>
+                        },
+                        error: function() {
+                        	alert("エラーが発生しました。");
+                        }
+					});
+				});
+
+				$("#year").on('change', function() {
+					changeYear($(this).val());
+				});
+
+				$("#month").on('change', function() {
+					changeMonth($("#year").val(), $(this).val());
+				});
+
+				$("#diag").on('click', function() {
+
+					let birthday = 
+						'1900' + 
+						("0" + $("#month").val()).slice(-2) +
+						("0" + $("#day").val()).slice(-2);
+
+                    $.ajax({
+                        url: "<?php echo get_site_url() . '/wp-json/diag/v1/result/' ?>",
+                        type: 'POST',
+                        data: { 
+                            birthday: birthday
+                        },
+                        success: function(response) {
                         		if (response.result == 'over times') {
-                        			alert('<?php echo get_option('diag_over_times_msg') ? 
-                        				get_option('diag_over_times_msg') : '本日はもう診断できません。'?>');
+                        			alert("<?php echo get_option('diag_over_times_msg') ? 
+                        				get_option('diag_over_times_msg') : '本日はもう診断できません。'; ?>");
                         			return;
                         		}
-
-                                <?php 
-                                        if (strlen(get_option('diag_complete_url')) > 0) {
-                                                ?>
-                                                location.href = '<?php echo get_option('diag_complete_url'); ?>';
-                                                <?php
-                                        } else {
-                                                ?>
-                                                alert('診断完了しました。メールをご確認ください。');
-                                                <?php
-                                        }
-                                ?>
+                        		$("#result-img").attr("src", response.img);
+                        		$("#title").html(response.title);
+                        		$("#uranai").hide();
+                        		$("#result").show();
+                        		$('.hide-result').hide();
+                        		$('.show-result').hide();
+                        		$("#fb-link").attr("href", $("#fb-link").attr("href")+response.id);
+                        		$("#line-link").attr("href", $("#line-link").attr("href")+response.id);
+                        		$("#twitter-link").attr("href", $("#twitter-link").attr("href")+response.id);
                         },
                         error: function() {
                             alert("エラーが発生しました。");
                         }
                     });
+
 				});
 
                 changeYear($("#year").val());
@@ -142,7 +174,7 @@ class DiagPage {
 		if ($result && $result[0]->times >= 3) {
 			$response->result = 'over times';
 			echo json_encode($response, JSON_UNESCAPED_UNICODE);
-			die;	
+			die;
 		}
 
 		$sql = $wpdb->prepare(
@@ -193,6 +225,55 @@ class DiagPage {
 			$ip = $_SERVER['REMOTE_ADDR'];
 		}
 		return $ip;
+	}
+
+ 	function getResult() {
+
+		$birthday = $_POST['birthday'];
+
+		$ruleNum = intval(substr($birthday, 4));
+
+		global $wpdb;
+
+		header('Content-type: text/html; charset=utf-8');
+		header('Content-Type: application/json');
+		$response = new stdClass();		
+
+		// 診断回数1日3回まで
+		$ip = $this->getIp();
+		$sql = $wpdb->prepare("select count(*) as times from wp_diag_history " . 
+						"where date(insert_date) = curdate() and ip='${ip}'", '');
+		$result = $wpdb->get_results($sql);
+		if ($result && $result[0]->times >= 3) {
+			$response->result = 'over times';
+			echo json_encode($response, JSON_UNESCAPED_UNICODE);
+			die;	
+		}
+
+		$sql = $wpdb->prepare(
+					"select r.img,r.result,r.id,r.title from wp_diag_rule r where `from`<=${ruleNum} and `to`>= ${ruleNum} " .
+					"order by r.id asc", '');
+		$result = $wpdb->get_results($sql);
+
+		if ($result) {
+			$row = $result[0];
+
+			// 履歴挿入
+			// $sql = 
+			// 	$wpdb->prepare(
+			// 			"insert into wp_diag_history(email, birthday, ip) " . 
+			// 			" values('$email','$birthday', '$ip')", '');
+			// $wpdb->get_results($sql);
+
+			$response->img = $row->img;
+			$response->result = $row->result;
+			$response->id = $row->id;
+			$response->title = $row->title;
+		}
+
+		$response->result = 'success';
+		echo json_encode($response, JSON_UNESCAPED_UNICODE);
+		die;		
 	}
 }
 
